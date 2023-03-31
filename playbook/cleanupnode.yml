@@ -1,0 +1,9 @@
+---
+- name: Run all services
+  hosts: ec2
+  become: true
+  roles:
+    - name: Update packages
+      role: ../roles/update_packages
+    - name: Run clean up
+      role: ../roles/run_clean_up

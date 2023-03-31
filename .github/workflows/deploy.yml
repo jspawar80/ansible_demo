@@ -1,0 +1,32 @@
+
+name: automation
+
+'on':
+  issue_comment:
+    types: [created]
+
+  pull_request:
+    branches:
+      - 'main'
+
+jobs:
+  deploy_to_test:
+    name: Deploy to test
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-pip
+          sudo pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org ansible
+          sudo apt-get install -y openssh-client
+      - name: Run Ansible playbook
+        uses: dawidd6/action-ansible-playbook@v2
+        with:
+          inventory: inventory/instance/inventory1.yml
+          playbook: roles/run_clean_up/main.yml
+          key: ${{secrets.MARC_PEM_KEY}}
+          vault_password: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
+          options: |
+              --verbose

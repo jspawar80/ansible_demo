@@ -1,0 +1,64 @@
+---
+name: Lint
+'on':
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: self-hosted
+    steps:
+      - name: Set up tool cache directory
+        run: |
+          mkdir -p /home/ubuntu/actions-runner/tools
+          chown -R $USER:$USER /home/ubuntu/actions-runner/tools
+          export AGENT_TOOLSDIRECTORY=/home/ubuntu/actions-runner/tools
+          echo 'export AGENT_TOOLSDIRECTORY=/home/ubuntu/actions-runner/tools' >> ~/.bashrc
+      - name: Clear cache
+        run: |
+          sudo rm -rf /opt/hostedtoolcache/*
+          apt-get clean
+      - name: Remove apt lock if exists
+        run: rm -f /var/lib/apt/lists/lock
+      - name: Install Certificates
+        run: |
+          apt-get update
+          apt-get install -y ca-certificates lsb-release
+      - name: Check out the codebase.
+        uses: actions/checkout@v2
+      - name: Install Python and pip
+        run: |
+          apt-get update
+          apt-get install python3 python3-pip -y
+      - name: Upgrade pip
+        run: |
+          pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org --upgrade pip
+      - name: Check out the codebase.
+        uses: actions/checkout@v2
+      - name: Set up Python 3.
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      - name: Install test dependencies.
+        run: pip3 install yamllint
+      - name: Lint code.
+        run: |
+          yamllint .
+  ansible-lint:
+    name: Ansible Lint
+    runs-on: self-hosted
+    steps:
+      # Important: This sets up your GITHUB_WORKSPACE environment variable
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Run ansible-lint
+        # replace `main` with any valid ref, or tags like `v6`
+        uses: ansible/ansible-lint-action@main
+        # optional:
+        # with:
+        #   path: "playbooks/"  # <-- only one value is allowed

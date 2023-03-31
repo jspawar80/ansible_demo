@@ -1,0 +1,21 @@
+---
+# exclude_paths:
+#   - roles/update_packages/tasks/main.yml
+skip_list:
+  - fqcn-builtins
+  - fqcn[action]
+  - fqcn[action-core]
+  - fqcn[canonical]
+  - name[casing]
+  - name[missing]
+  - name[template]
+  - no-changed-when
+  - no-free-form
+  - role-name
+  - risky-file-permissions
+  - deprecated-local-action
+  - literal-compare
+  - package-latest
+  - risky-shell-pipe
+  - command-instead-of-module
+  - ignore-errors

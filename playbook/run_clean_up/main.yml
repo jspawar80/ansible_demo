@@ -1,0 +1,41 @@
+---
+- name: Remove Docker and Apache
+  become: true
+  hosts: ec2
+  tasks:
+    - name: Stop Apache service
+      service:
+        name: apache2
+        state: stopped
+        enabled: false
+
+    - name: Remove Apache
+      apt:
+        name: apache2
+        state: absent
+
+    - name: Remove Docker
+      apt:
+        name: docker-ce
+        state: absent
+
+    - name: Remove Docker dependencies
+      apt:
+        name: "{{ item }}"
+        state: absent
+      with_items:
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - gnupg
+        - lsb-release
+
+    - name: Run clean up
+      debug:
+        msg: "Cleaning up"
+      when: true
+
+    - name: Update packages
+      debug:
+        msg: "Updating packages"
+      when: false
